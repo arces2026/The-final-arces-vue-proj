@@ -34,57 +34,60 @@ async function saveProduct() {
   console.log(form.value)
   const token = localStorage.getItem('token') // or sessionStorage, or from Vuex/Pinia store
   console.log({ token: token })
-  if (isEditingRecord.value) {
-    //Modificando il record
-    try {
-      let url = 'https://deploy-django-backend.onrender.com/api/v1/libri/'
-      let method = 'PUT'
 
-      if (isEditingRecord.vale) {
-        url = `https://deploy-django-backend.onrender.com/api/v1/libri/${form.value.id}`
-        method = 'PUT'
-      }
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(form.value),
-      })
-      if (!response.ok) {
-        throw new Error(`Failed to ${isEditingRecord ? 'update' : 'create'} the product`)
-      }
-      const result = await response.json()
+  //Modificando il record
+  try {
+    let url = 'https://deploy-django-backend.onrender.com/api/v1/libri/'
+    let method = 'POST'
 
-      // update
-      if (isEditingRecord.value) {
-        const index = products.value.findIndex((p) => p.id === result.id)
+    if (isEditingRecord.value) {
+      url = `https://deploy-django-backend.onrender.com/api/v1/libri/${form.value.id}/`
+      method = 'PUT'
+    }
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(form.value),
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to ${isEditingRecord ? 'update' : 'create'} the product`)
+    }
+    const result = await response.json()
+    console.log({result: result})
+    // update
+    if (isEditingRecord.value) {
+      const index = products.value.findIndex((p) => p.id === result.id)
+      if (index !== -1) {
         products.value[index] = result
+        showModalNoTeleport.value = false
       }
-
+    } else {
       products.value = [...products.value, result] // aggiorna la lista
       showModalNoTeleport.value = false // chiude il modal
       form.value = {} // pulisce i campi
-    } catch (error) {
-      console.error('Error trying to save data', error)
     }
+    isEditingRecord.value = false
+  } catch (error) {
+    console.error('Error trying to save data', error)
   }
 }
 
-// function editRecord(id) {
-//   isEditingRecord.value = true
-//   const productToEdit = products.value.find((p) => p.id === id)
-//   form.value = {
-//     id: id,
-//     titolo: productToEdit.titolo,
-//     anno: productToEdit.anno,
-//     genere: productToEdit.genere,
-//     // Se nel backend l'autore è un oggetto (es. {id: 1, nome: "A"}), prendi solo l'id
-//     autore: productToEdit.autore?.id || productToEdit.autore,
-//   }
-//   showModalNoTeleport.value = true
-// }
+function editRecord(id) {
+  isEditingRecord.value = true
+  const productToEdit = products.value.find((p) => p.id === id)
+  form.value = {
+    id: id,
+    titolo: productToEdit.titolo,
+    anno: productToEdit.anno,
+    genere: productToEdit.genere,
+    // Se nel backend l'autore è un oggetto (es. {id: 1, nome: "A"}), prendi solo l'id
+    autore: productToEdit.autore?.id || productToEdit.autore,
+  }
+  showModalNoTeleport.value = true
+}
 </script>
 
 <template>
