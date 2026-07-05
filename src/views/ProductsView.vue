@@ -4,8 +4,11 @@ import Modal from '@/components/Modal.vue'
 import { onMounted, ref } from 'vue'
 import { getProducts } from '@/services/productService'
 import Button from '@/components/ui/Button.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const products = ref([])
+const autori = ref([])
+
 const error = ref(null)
 const loading = ref(true)
 const form = ref({})
@@ -21,7 +24,15 @@ const selectedField = ref('all')
 
 onMounted(async () => {
   try {
-    products.value = await getProducts()
+    const token = localStorage.getItem('token')
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const [productsData, autoriData] = await Promise.all([
+     getProducts('https://deploy-django-backend.onrender.com/api/v1/libri/'),
+     getProducts('https://deploy-django-backend.onrender.com/api/v1/autori/')
+    ])
+    products.value = productsData
+    autori.value = autoriData
+    console.log({autori: autori.value})
   } catch (err) {
     error.value = 'Impossibile caricare i prodotti.'
   } finally {
@@ -63,6 +74,7 @@ async function saveProduct() {
       if (index !== -1) {
         products.value[index] = result
         showModalNoTeleport.value = false
+        form.value = {}
       }
     } else {
       products.value = [...products.value, result] // aggiorna la lista
@@ -91,6 +103,7 @@ function editRecord(id) {
 </script>
 
 <template>
+  <LoadingSpinner v-if="loading"/>
   <main class="main">
     <div class="search-panel">
       <form id="search" class="flex-item">
@@ -101,7 +114,7 @@ function editRecord(id) {
           </option>
         </select>
       </form>
-      <div class="butt-add" @click="showModalNoTeleport = true">+</div>
+      <div class="butt-add" @click="showModalNoTeleport = true; form = {}">+</div>
       <Grid
         class="flex-item"
         :data="products"
@@ -122,7 +135,11 @@ function editRecord(id) {
         <input type="text" placeholder="Titolo" v-model="form.titolo" class="input-item" />
         <input type="number" placeholder="Anno" v-model="form.anno" class="input-item" />
         <input type="text" placeholder="Genere" v-model="form.genere" class="input-item" />
-        <input type="number" placeholder="autore id" v-model="form.autore" class="input-item" />
+        <!-- <input type="number" placeholder="autore id" v-model="form.autore" class="input-item" /> -->
+         <select v-model="form.autore">
+          <option value="" disabled selected>Seleziona un autore</option>
+          <option v-for="autore in autori" :key="autore.id" :value="autore.id">{{ autore.nome }}</option>
+         </select>
         <Button>Salva</Button>
       </form>
     </Modal>

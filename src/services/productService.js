@@ -1,6 +1,7 @@
-export async function getProducts() {
+export async function getProducts(url) {
     try {
-        const response = await fetch('https://deploy-django-backend.onrender.com/api/v1/libri');
+        const response = await fetch(url);
+        // const response = await fetch('https://deploy-django-backend.onrender.com/api/v1/libri');
 
         if (!response.ok) {
             throw new Error(`Errore HTTP: ${response.status}`);

@@ -1,4 +1,5 @@
 <template>
+   <LoadingSpinner v-if="loading" />
    <main class="grid">
       <ProductCard v-for="product in products">
          <template #image>
@@ -31,6 +32,7 @@ import { onMounted, ref } from 'vue';
 import ProductCard from '@/components/ProductCard.vue';
 import { getProducts, insertProduct } from '@/services/productService';
 import { useCartStore } from '@/stores/cartStore';
+import LoadingSpinner from './LoadingSpinner.vue';
 
 const products = ref([])
 const error = ref(null)
@@ -40,7 +42,7 @@ const cartStore = useCartStore();
 
 onMounted(async () => {
    try {
-      products.value = await getProducts()
+      products.value = await getProducts('https://deploy-django-backend.onrender.com/api/v1/libri')
    } catch (err) {
       error.value = "Impossibile caricare i prodotti."
    } finally {
