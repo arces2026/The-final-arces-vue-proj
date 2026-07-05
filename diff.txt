@@ -12,7 +12,7 @@ index 8a61c1a..2a00d4a 100644
  import ProductCard from '@/components/ProductCard.vue';
  import { getProducts, insertProduct } from '@/services/productService';
  import { useCartStore } from '@/stores/cartStore';
-+import LoadingSpinner from './LoadingSpinner.vue';
++import LoadingSpinner from './LoadingSpinner.vue'
  
  const products = ref([])
  const error = ref(null)
