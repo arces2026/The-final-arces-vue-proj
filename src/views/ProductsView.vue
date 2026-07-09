@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue'
 import { getProducts } from '@/services/productService'
 import Button from '@/components/ui/Button.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import { getNestedValue } from '@/utils/objectUtils'
+
 
 const products = ref([])
 const autori = ref([])

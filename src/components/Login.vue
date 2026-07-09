@@ -31,7 +31,7 @@ async function login(){
         }
 
         const data = await response.json();
-        console.log(data);
+        console.log({data: data});
 
         if(data){
             console.log({data: data.access})
