@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue'
 import { getProducts } from '@/services/productService'
 import Button from '@/components/ui/Button.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { getNestedValue } from '@/utils/objectUtils'
 
 const products = ref([])
 const autori = ref([])
@@ -16,7 +17,7 @@ const form = ref({})
 const showModalNoTeleport = ref(false)
 const isEditingRecord = ref(false)
 
-const gridLibriColumns = ['titolo', 'anno', 'genere', 'autore.nome']
+const gridLibriColumns = ['titolo', 'anno', 'genere', 'autore.nome', 'autore.nazione']
 const radioSelection = ['titolo', 'anno', 'genere', 'autore.nome', 'all']
 
 const searchQuery = ref('')
@@ -34,17 +35,17 @@ onMounted(async () => {
     autori.value = autoriData
     console.log({autori: autori.value})
   } catch (err) {
-    error.value = 'Impossibile caricare i prodotti.'
+    error.value = 'Impossibile caricare i prodotti.', err.message
   } finally {
     loading.value = false
   }
-  console.log(products.value)
+  console.log({products: products.value})
 })
 
 async function saveProduct() {
   console.log(form.value)
   const token = localStorage.getItem('token') // or sessionStorage, or from Vuex/Pinia store
-  console.log({ token: token })
+  // console.log({ token: token })
 
   //Modificando il record
   try {
@@ -68,22 +69,36 @@ async function saveProduct() {
     }
     const result = await response.json()
     console.log({result: result})
+
+    //get the autore full object from the fetched autori Array
+    const fullAutore = autori.value.find(a => a.id === form.value.autore)
+    console.log({fullAutore: fullAutore, autori: autori.value})
+
+    //Create the product with the full autore
+    const enrichedProduct = {
+      ...result,
+      autore: fullAutore || result.autore
+    }
     // update
     if (isEditingRecord.value) {
       const index = products.value.findIndex((p) => p.id === result.id)
       if (index !== -1) {
-        products.value[index] = result
+        products.value[index] = enrichedProduct
+        // products.value[index] = result
         showModalNoTeleport.value = false
         form.value = {}
       }
     } else {
-      products.value = [...products.value, result] // aggiorna la lista
+      // products.value = [...products.value, result] // aggiorna la lista
+      products.value = [...products.value, enrichedProduct] // aggiorna la lista
+      console.log({form: form.value})
+      console.log({products: products.value})
       showModalNoTeleport.value = false // chiude il modal
       form.value = {} // pulisce i campi
     }
     isEditingRecord.value = false
   } catch (error) {
-    console.error('Error trying to save data', error)
+    console.error('Error trying to save data', error.message)
   }
 }
 
