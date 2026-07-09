@@ -1,232 +1,63 @@
 diff --git a/src/components/Grid.vue b/src/components/Grid.vue
-index 3587b77..804eb6a 100644
+index 804eb6a..29a7923 100644
 --- a/src/components/Grid.vue
 +++ b/src/components/Grid.vue
-@@ -1,5 +1,6 @@
- <script setup>
- import { ref, computed } from 'vue'
-+import { getNestedValue, getAllKeys } from '@/utils/objectUtils'
+@@ -13,7 +13,7 @@ defineEmits(['edit-clicked'])
  
- const props = defineProps({
-   data: Array,
-@@ -48,84 +49,6 @@ function capitalize(str) {
-   return str.charAt(0).toUpperCase() + str.slice(1)
- }
+ const sortKey = ref('')
+ const sortOrders = ref(
+-  props.columns.reduce((o, key) => ((o[key] = 1), o), {})
++  props.columns.reduce((o, col) => ((o[col.key] = 1), o), {})
+ )
  
--
--const getNestedValue = (obj, path) => {
--  return path.split('.').reduce((acc, key) => acc?.[key], obj)
--}
--
--// Helper function to get all nested keys from an object
--/**
-- * Recursively extracts all nested key paths from an object using dot notation
-- *
-- * @param {Object} obj - The object to traverse and extract keys from
-- * @param {string} prefix - The current path prefix (used internally for recursion)
-- * @returns {string[]} Array of all nested key paths (e.g., ['name', 'address.city', 'address.location.lat'])
-- *
-- * Example:
-- *   const data = { user: { name: 'John', address: { city: 'NYC' } } }
-- *   getAllKeys(data) // Returns: ['user.name', 'user.address', 'user.address.city']
-- */
--
--function getAllKeys(obj, prefix = '') {
--  // DEBUG: Log function invocation with current parameters
--  // console.log('getAllKeys fired',{'obj': obj, 'prefix': prefix})
--
--  // Initialize an array to store all the key paths we find
--  let keys = []
--  console.log({ keys: keys }) // DEBUG: Initial empty array
--
--  // BASE CASE: If obj is null/undefined or not an object, return empty array
--  // This prevents errors and stops recursion when we hit primitive values
--  if (!obj || typeof obj !== 'object') {
--    return keys
--  }
--
--  console.log({ 'full obj': obj, 'nome autore': obj?.autore?.nome }) // DEBUG: Log the object being processed
--  // Or check all at once with more info
--  console.log('Full path check:', {
--    hasObj: !!obj,
--    hasObject: !!obj?.object,
--    hasAutore: !!obj?.object?.autore,
--    hasNome: !!obj?.object?.autore?.nome,
--    value: obj?.object?.autore?.nome,
--  })
--
--  // STEP 1: Loop through every property in the current object
--  for (const key in obj) {
--    // STEP 2: Build the complete dot-notation path
--    // - If we have a prefix (we're nested), combine: prefix.key
--    // - If no prefix (we're at root), just use the key
--    // Example: prefix='address', key='city' → 'address.city'
--    const fullKey = prefix ? `${prefix}.${key}` : key
--    // console.log({'fullKey': fullKey}) // DEBUG: Log the full path we're working with
--
--    // STEP 3: Check if this property's value is a nested object
--    // Conditions:
--    // - Is it an 'object' type? (not string, number, boolean, etc.)
--    // - Is it NOT null? (null is technically an object but we want to treat it as a leaf)
--    // - Is it NOT an Array? (we treat arrays as leaf values, not nested objects)
--    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
--      // STEP 3A: RECURSIVE CASE - Value is a nested object
--      // Recursively call getAllKeys on the nested object
--      // Pass the fullKey as the new prefix to maintain the dot-notation path
--      // Concatenate the returned keys to our current keys array
--      // Example: If obj[key] is { city: 'NYC', zip: '10001' }
--      // This will return ['city', 'zip'] which becomes ['address.city', 'address.zip']
--      keys = keys.concat(getAllKeys(obj[key], fullKey))
--    } else {
--      // STEP 3B: BASE CASE - Value is a leaf (primitive, null, or array)
--      // We've reached the end of this path, so add the full path to our keys array
--      // Example: key='name' with no prefix → push('name')
--      // Example: key='city' with prefix='address' → push('address.city')
--      keys.push(fullKey)
--    }
--  }
--
--  // STEP 4: Return the complete array of all key paths found
--  return keys
--}
--
--
- </script>
- 
- 
-diff --git a/src/utils/objectUtils.js b/src/utils/objectUtils.js
-new file mode 100644
-index 0000000..740b2c1
---- /dev/null
-+++ b/src/utils/objectUtils.js
-@@ -0,0 +1,48 @@
-+// src/utils/objectUtils.js
-+
-+/**
-+ * Safely gets a nested value from an object using dot notation path
-+ *
-+ * @param {Object} obj - The object to traverse
-+ * @param {string} path - The dot notation path (e.g., 'user.address.city')
-+ * @returns {any} - The value at the path, or undefined if not found
-+ *
-+ * @example
-+ * const obj = { user: { address: { city: 'New York' } } }
-+ * getNestedValue(obj, 'user.address.city') // Returns 'New York'
-+ */
-+export const getNestedValue = (obj, path) => {
-+  if (!obj || !path) return undefined
-+  return path.split('.').reduce((acc, key) => acc?.[key], obj)
-+}
-+
-+/**
-+ * Recursively extracts all nested key paths from an object using dot notation
-+ *
-+ * @param {Object} obj - The object to traverse and extract keys from
-+ * @param {string} prefix - The current path prefix (used internally for recursion)
-+ * @returns {string[]} Array of all nested key paths
-+ *
-+ * @example
-+ * const data = { user: { name: 'John', address: { city: 'NYC' } } }
-+ * getAllKeys(data) // Returns: ['user.name', 'user.address', 'user.address.city']
-+ */
-+export const getAllKeys = (obj, prefix = '') => {
-+  let keys = []
-+
-+  if (!obj || typeof obj !== 'object') {
-+    return keys
-+  }
-+
-+  for (const key in obj) {
-+    const fullKey = prefix ? `${prefix}.${key}` : key
-+
-+    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-+      keys = keys.concat(getAllKeys(obj[key], fullKey))
-+    } else {
-+      keys.push(fullKey)
-+    }
-+  }
-+
-+  return keys
-+}
+ const filteredData = computed(() => {
+@@ -56,20 +56,21 @@ function capitalize(str) {
+   <table v-if="filteredData.length">
+     <thead>
+       <tr>
+-        <th v-for="key in columns"
+-          @click="sortBy(key)"
+-          :class="{ active: sortKey == key }">
+-          {{ capitalize(key) }}
+-          <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
++        <th v-for="col in columns"
++          :key="col.key"
++          @click="sortBy(col.key)"
++          :class="{ active: sortKey == col.key }">
++          {{ col.label || capitalize(col.key) }}
++          <span class="arrow" :class="sortOrders[col.key] > 0 ? 'asc' : 'dsc'">
+           </span>
+         </th>
+         <th>Azioni</th>
+       </tr>
+     </thead>
+     <tbody>
+-      <tr v-for="entry in filteredData">
+-        <td v-for="key in columns">
+-          {{getNestedValue(entry, key)}}
++      <tr v-for="entry in filteredData" :entry="entry.id">
++        <td v-for="col in columns" :key="col.key">
++          {{getNestedValue(entry, col.key)}}
+         </td>
+         <td><button @click="$emit('edit-clicked', entry.id)">Edit</button></td>
+       </tr>
 diff --git a/src/views/ProductsView.vue b/src/views/ProductsView.vue
-index 53bdb5d..8d6faab 100644
+index 8d6faab..bb7dc1b 100644
 --- a/src/views/ProductsView.vue
 +++ b/src/views/ProductsView.vue
-@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue'
- import { getProducts } from '@/services/productService'
- import Button from '@/components/ui/Button.vue'
- import LoadingSpinner from '@/components/LoadingSpinner.vue'
-+import { getNestedValue } from '@/utils/objectUtils'
- 
- const products = ref([])
- const autori = ref([])
-@@ -16,7 +17,7 @@ const form = ref({})
+@@ -17,7 +17,14 @@ const form = ref({})
  const showModalNoTeleport = ref(false)
  const isEditingRecord = ref(false)
  
--const gridLibriColumns = ['titolo', 'anno', 'genere', 'autore.nome']
-+const gridLibriColumns = ['titolo', 'anno', 'genere', 'autore.nome', 'autore.nazione']
+-const gridLibriColumns = ['titolo', 'anno', 'genere', 'autore.nome', 'autore.nazione']
++// 
++const gridLibriColumns = [
++  { key: 'titolo', label: 'Titolo' },
++  { key: 'anno', label: 'Anno' },
++  { key: 'genere', label: 'Genere' },
++  { key: 'autore.nome', label: 'Autore' },
++  { key: 'autore.nazione', label: 'Nazione' }
++]
  const radioSelection = ['titolo', 'anno', 'genere', 'autore.nome', 'all']
  
  const searchQuery = ref('')
-@@ -34,17 +35,17 @@ onMounted(async () => {
-     autori.value = autoriData
-     console.log({autori: autori.value})
-   } catch (err) {
--    error.value = 'Impossibile caricare i prodotti.'
-+    error.value = 'Impossibile caricare i prodotti.', err.message
-   } finally {
-     loading.value = false
-   }
--  console.log(products.value)
-+  console.log({products: products.value})
- })
- 
- async function saveProduct() {
-   console.log(form.value)
-   const token = localStorage.getItem('token') // or sessionStorage, or from Vuex/Pinia store
--  console.log({ token: token })
-+  // console.log({ token: token })
- 
-   //Modificando il record
-   try {
-@@ -68,22 +69,36 @@ async function saveProduct() {
-     }
-     const result = await response.json()
-     console.log({result: result})
-+
-+    //get the autore full object from the fetched autori Array
-+    const fullAutore = autori.value.find(a => a.id === form.value.autore)
-+    console.log({fullAutore: fullAutore, autori: autori.value})
-+
-+    //Create the product with the full autore
-+    const enrichedProduct = {
-+      ...result,
-+      autore: fullAutore || result.autore
-+    }
-     // update
-     if (isEditingRecord.value) {
-       const index = products.value.findIndex((p) => p.id === result.id)
-       if (index !== -1) {
--        products.value[index] = result
-+        products.value[index] = enrichedProduct
-+        // products.value[index] = result
-         showModalNoTeleport.value = false
-         form.value = {}
-       }
-     } else {
--      products.value = [...products.value, result] // aggiorna la lista
-+      // products.value = [...products.value, result] // aggiorna la lista
-+      products.value = [...products.value, enrichedProduct] // aggiorna la lista
-+      console.log({form: form.value})
-+      console.log({products: products.value})
-       showModalNoTeleport.value = false // chiude il modal
-       form.value = {} // pulisce i campi
-     }
-     isEditingRecord.value = false
-   } catch (error) {
--    console.error('Error trying to save data', error)
-+    console.error('Error trying to save data', error.message)
-   }
- }
- 

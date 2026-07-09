@@ -17,7 +17,14 @@ const form = ref({})
 const showModalNoTeleport = ref(false)
 const isEditingRecord = ref(false)
 
-const gridLibriColumns = ['titolo', 'anno', 'genere', 'autore.nome', 'autore.nazione']
+// 
+const gridLibriColumns = [
+  { key: 'titolo', label: 'Titolo' },
+  { key: 'anno', label: 'Anno' },
+  { key: 'genere', label: 'Genere' },
+  { key: 'autore.nome', label: 'Autore' },
+  { key: 'autore.nazione', label: 'Nazione' }
+]
 const radioSelection = ['titolo', 'anno', 'genere', 'autore.nome', 'all']
 
 const searchQuery = ref('')

@@ -13,7 +13,7 @@ defineEmits(['edit-clicked'])
 
 const sortKey = ref('')
 const sortOrders = ref(
-  props.columns.reduce((o, key) => ((o[key] = 1), o), {})
+  props.columns.reduce((o, col) => ((o[col.key] = 1), o), {})
 )
 
 const filteredData = computed(() => {
@@ -56,20 +56,21 @@ function capitalize(str) {
   <table v-if="filteredData.length">
     <thead>
       <tr>
-        <th v-for="key in columns"
-          @click="sortBy(key)"
-          :class="{ active: sortKey == key }">
-          {{ capitalize(key) }}
-          <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+        <th v-for="col in columns"
+          :key="col.key"
+          @click="sortBy(col.key)"
+          :class="{ active: sortKey == col.key }">
+          {{ col.label || capitalize(col.key) }}
+          <span class="arrow" :class="sortOrders[col.key] > 0 ? 'asc' : 'dsc'">
           </span>
         </th>
         <th>Azioni</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="entry in filteredData">
-        <td v-for="key in columns">
-          {{getNestedValue(entry, key)}}
+      <tr v-for="entry in filteredData" :entry="entry.id">
+        <td v-for="col in columns" :key="col.key">
+          {{getNestedValue(entry, col.key)}}
         </td>
         <td><button @click="$emit('edit-clicked', entry.id)">Edit</button></td>
       </tr>
