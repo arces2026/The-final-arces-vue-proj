@@ -40,13 +40,13 @@ onMounted(async () => {
     ])
     products.value = productsData
     autori.value = autoriData
-    console.log({autori: autori.value})
+    // console.log({autori: autori.value})
   } catch (err) {
     error.value = 'Impossibile caricare i prodotti.', err.message
   } finally {
     loading.value = false
   }
-  console.log({products: products.value})
+  // console.log({products: products.value})
 })
 
 async function saveProduct() {
@@ -75,7 +75,7 @@ async function saveProduct() {
       throw new Error(`Failed to ${isEditingRecord ? 'update' : 'create'} the product`)
     }
     const result = await response.json()
-    console.log({result: result})
+    // console.log({result: result})
 
     //get the autore full object from the fetched autori Array
     const fullAutore = autori.value.find(a => a.id === form.value.autore)
@@ -98,8 +98,8 @@ async function saveProduct() {
     } else {
       // products.value = [...products.value, result] // aggiorna la lista
       products.value = [...products.value, enrichedProduct] // aggiorna la lista
-      console.log({form: form.value})
-      console.log({products: products.value})
+      // console.log({form: form.value})
+      // console.log({products: products.value})
       showModalNoTeleport.value = false // chiude il modal
       form.value = {} // pulisce i campi
     }

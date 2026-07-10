@@ -16,7 +16,7 @@ async function login(){
         username: username.value,
         password: password.value
     }
-    console.log({payload: payload})
+    // console.log({payload: payload})
     try {
         const response = await fetch("https://deploy-django-backend.onrender.com/api/v1/login/",{
             method: "POST",
@@ -31,10 +31,10 @@ async function login(){
         }
 
         const data = await response.json();
-        console.log({data: data});
+        // console.log({data: data});
 
         if(data){
-            console.log({data: data.access})
+            // console.log({data: data.access})
             authStore.saveToken(data.access);
             router.push('/')
         }

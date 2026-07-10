@@ -11,7 +11,13 @@
         <a href="#" @click.prevent="handleLogout">Logout</a>
       </li>
       <li v-else><router-link to="/login">Login</router-link></li>
-      <li id="cart"><font-awesome-icon :icon="['fas', 'cart-shopping']" /><span id="counter">{{ cartStore.totalItems }}</span></li>
+      <li id="cart">
+        <router-link to="/cart"
+          ><font-awesome-icon :icon="['fas', 'cart-shopping']" /><span id="counter">{{
+            cartStore.totalItems
+          }}</span></router-link
+        >
+      </li>
     </ul>
   </nav>
 </template>
@@ -90,7 +96,7 @@ function handleLogout() {
 }
 
 #counter {
-    color: white;
+  color: white;
 }
 
 /* 📱 Ottimizzazione Mobile (Responsive) */

@@ -4,21 +4,20 @@
       <ProductCard v-for="product in products">
          <template #image>
             <div class="badge-wrapper">
-               <span class="badge">Sconto 20%</span>
-               <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" alt="Scarpe Nike" />
-            </div>
+               <span class="badge">Sconto {{ product.sconto }}</span>
+                <img :src="product.immagine_url" :alt="product.nome" /></div>
          </template>
 
          <template #content>
-            <span class="category">Calzature</span>
-            <h3 class="custom-title">{{ product.titolo }}</h3>
-            <p class="custom-desc">Comfort eccezionale e design iconico per le tue sessioni di corsa quotidiane.</p>
+            <span class="category">{{ product.categoria }}</span>
+            <h3 class="custom-title">{{ product.nome }}</h3>
+            <p class="custom-desc">{{ product.descrizione }}</p>
          </template>
 
          <template #footer>
             <div class="price-container">
-               <span class="old-price">€120,00</span>
-               <span class="new-price">€96,00</span>
+               <span class="old-price">€ {{ product.prezzo }}</span>
+               <span class="new-price">€ {{ product.prezzo_scontato }}</span>
             </div>
             <button class="add-btn" @click="cartStore.addToCart(product)">Aggiungi</button>
          </template>
@@ -42,13 +41,13 @@ const cartStore = useCartStore();
 
 onMounted(async () => {
    try {
-      products.value = await getProducts('https://deploy-django-backend.onrender.com/api/v1/libri')
+      products.value = await getProducts('https://deploy-django-backend.onrender.com/api/v1/scarpe')
    } catch (err) {
       error.value = "Impossibile caricare i prodotti."
    } finally {
       loading.value = false
    }
-   console.log(products.value);
+   // console.log(products.value);
 })
 
 </script>
