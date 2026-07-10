@@ -40,8 +40,11 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   const quantita = (itemId: number) => {
-    
+    const item = items.value.find(i => i.id === itemId)
+    if (item){
+    const quant = item.quantity++
   }
+}
 
   const clearCart = () => {
     // localStorage.setItem('cart', JSON.stringify([]))
