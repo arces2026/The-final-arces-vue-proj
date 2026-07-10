@@ -13,8 +13,7 @@ console.log({totalItems: cartStore.totalItems})
 <template>
     <Cart
     :data="cartStore.items"
-    >
-    </Cart>
+    />
     <h2>Totale</h2>
     <p>€ {{ cartStore.totalPrice.toFixed(2) }}</p>
     <button type="button" @click="cartStore.clearCart">Clear cart</button>
