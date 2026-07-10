@@ -1,123 +1,261 @@
+diff --git a/diff.txt b/diff.txt
+index 120946f..426e017 100644
+--- a/diff.txt
++++ b/diff.txt
+@@ -1,111 +1,123 @@
+ diff --git a/src/components/Cart.vue b/src/components/Cart.vue
+-index 577fde5..4641025 100644
++index 4641025..3c97cc4 100644
+ --- a/src/components/Cart.vue
+ +++ b/src/components/Cart.vue
+-@@ -5,17 +5,31 @@
+-   <div class="items-container">
++@@ -2,21 +2,27 @@
++   <!-- <Teleport to="app">
++         <Modal></Modal>
++     </Teleport> -->
++-  <div class="items-container">
+++  <!-- <div class="items-container"> -->
+      <h2>Prodotti nel carrello</h2>
+++
+      <ul v-for="item in data" :key="item.id">
+--         <li>{{ item.nome }}{{ item.prezzo }}</li>
+-+      <li>
+-+        {{ item.nome }} € {{ item.prezzo_scontato.toFixed(2) }}
+-+        <span v-if="item.sconto !== 0">{{ item.sconto }}%</span>
+-+        <button @click="cartStore.rimuoviItem(item.id)">Rimuovi</button>
+-+      </li>
++-      <li>
+++      <li id="item-li">
++         {{ item.nome }} € {{ item.prezzo_scontato.toFixed(2) }}
++         <span v-if="item.sconto !== 0">{{ item.sconto }}%</span>
++         <button @click="cartStore.rimuoviItem(item.id)">Rimuovi</button>
+++        <button @click="cartStore.addOne(item.id)">+</button>
+++        <span>Quantità {{ item.quantity }}</span>
+++        <button @click="cartStore.minusOne(item.id)">-</button>
++       </li>
+      </ul>
+--    </div>
+--    
+-+  </div>
++-  </div>
+++  <!-- </div> -->
+++   <ProductCard/>
+  </template>
+  
+  <script setup>
+-+import { useCartStore } from '@/stores/cartStore.js';
++ import { useCartStore } from '@/stores/cartStore.js';
+  import Modal from './Modal.vue'
+-+
+-+const cartStore = useCartStore()
+++import ProductCard from './ProductCard.vue';
++ 
++ const cartStore = useCartStore()
+  const props = defineProps({
+--    data: Array
+-+  data: Array,
+- })
+-+
+-+// // define the emit
+-+// const emit = defineEmits(['rimuovi-item'])
+-+
+-+// //emit the event when called
+-+// const rimuoviItem = (itemId) => {
+-+//     emit('rimuovi-item', itemId)
+-+// }
++@@ -32,4 +38,9 @@ const props = defineProps({
++ // }
+  </script>
+  
+- <style></style>
+-diff --git a/src/components/HomeComponent.vue b/src/components/HomeComponent.vue
+-index 1008990..dfe4087 100644
+---- a/src/components/HomeComponent.vue
+-+++ b/src/components/HomeComponent.vue
+-@@ -47,7 +47,7 @@ onMounted(async () => {
+-    } finally {
+-       loading.value = false
+-    }
+--   // console.log(products.value);
+-+   console.log({products: products.value});
+- })
+- 
+- </script>
++-<style></style>
+++<style scoped>
+++#item-li {
+++  display: flex;
+++  justify-content: space-between;
+++}
+++</style>
+ diff --git a/src/stores/cartStore.ts b/src/stores/cartStore.ts
+-index 54a55b4..df7ef6b 100644
++index 05c6751..6c7f264 100644
+ --- a/src/stores/cartStore.ts
+ +++ b/src/stores/cartStore.ts
+-@@ -32,9 +32,15 @@ export const useCartStore = defineStore('cart', () => {
+-   watch(items, (newItems) => {localStorage.setItem('cart', JSON.stringify(newItems))}, { deep: true})
++@@ -14,7 +14,8 @@ export interface CartItem extends Product {
++ export const useCartStore = defineStore('cart', () => {
++   // const items = ref<CartItem[]>([]);
++   const items = ref<CartItem[]>(
++-    (() => {     // ← Function definition starts
+++    (() => {
+++      // ← Function definition starts
++       try {
++         const retrieved = localStorage.getItem('cart')
++         return retrieved === null ? [] : JSON.parse(retrieved)
++@@ -24,28 +25,44 @@ export const useCartStore = defineStore('cart', () => {
++       }
++     })(), // ← Function is CALLED here
++   ) // ← ref receives the RETURN VALUE
+++
++   const totalItems = computed<number>(() => {
++     return items.value.reduce((acc, item) => acc + item.quantity, 0)
++   })
++ 
++   // watch the ref items and saves to localStorage at any change
++-  watch(items, (newItems) => {localStorage.setItem('cart', JSON.stringify(newItems))}, { deep: true})
+++  watch(
+++    items,
+++    (newItems) => {
+++      localStorage.setItem('cart', JSON.stringify(newItems))
+++    },
+++    { deep: true },
+++  )
+  
+    const totalPrice = computed<number>(() =>
+--    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
+-+    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0)
++-    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0)
+++    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
+    )
+  
+-+  const rimuoviItem = (itemId: number) => {
+-+    const itemQuantity = items.value.find(i => i.id === itemId)
+-+    console.log({itemQuantity: itemQuantity?.quantity})
+-+    items.value = items.value.filter(i => i.id !== itemId)
++   const rimuoviItem = (itemId: number) => {
++-    items.value = items.value.filter(i => i.id !== itemId)
+++    items.value = items.value.filter((i) => i.id !== itemId)
++   }
++ 
++-  const quantita = (itemId: number) => {
++-    const item = items.value.find(i => i.id === itemId)
++-    if (item){
++-    const quant = item.quantity++
+++  const addOne = (itemId: number) => {
+++    const item = items.value.find((i) => i.id === itemId)
+++    if (item) {
+++      // const quant = item.quantity++
+++      item.quantity++
+++      console.log({ itemQuantity: item.quantity })
+++    }
++   }
++-}
++ 
+++  const minusOne = (itemId: number) => {
+++    const item = items.value.find((i) => i.id === itemId)
+++    if (item) {
+++      item.quantity--
+++    }
+ +  }
+-+
+++ 
+    const clearCart = () => {
+      // localStorage.setItem('cart', JSON.stringify([]))
+      items.value = []
+-@@ -47,7 +53,7 @@ export const useCartStore = defineStore('cart', () => {
+-     } else {
+-       items.value.push({ ...product, quantity: 1 })
+-     }
+--    console.log({ items: items.value })
+-+    console.log({ items: items.value[0].quantity })
+- 
+-     // localStorage.setItem('cart', JSON.stringify(items.value))
+-   }
+-@@ -58,5 +64,6 @@ export const useCartStore = defineStore('cart', () => {
++@@ -69,6 +86,8 @@ export const useCartStore = defineStore('cart', () => {
+      totalPrice,
+      addToCart,
+      clearCart,
+-+    rimuoviItem
++-    rimuoviItem
+++    rimuoviItem,
+++    addOne,
+++    minusOne,
+    }
+  })
+-diff --git a/src/views/CartView.vue b/src/views/CartView.vue
+-index 18c3dd3..ce4cbcc 100644
+---- a/src/views/CartView.vue
+-+++ b/src/views/CartView.vue
+-@@ -7,6 +7,7 @@ const cartStore = useCartStore();
+- // const prodotti = await getProducts('https://deploy-django-backend.onrender.com/api/v1/scarpe')
+- console.log({items: cartStore.items})
+- console.log({totalItems: cartStore.totalItems})
+-+
+- </script> 
+- 
+- <template>
+-@@ -15,6 +16,6 @@ console.log({totalItems: cartStore.totalItems})
+-     >
+-     </Cart>
+-     <h2>Totale</h2>
+--    <p>{{ cartStore.totalPrice }}</p>
+-+    <p>€ {{ cartStore.totalPrice.toFixed(2) }}</p>
+-     <button type="button" @click="cartStore.clearCart">Clear cart</button>
+- </template>
+-\ No newline at end of file
 diff --git a/src/components/Cart.vue b/src/components/Cart.vue
-index 4641025..3c97cc4 100644
+index 3c97cc4..0b1f2cc 100644
 --- a/src/components/Cart.vue
 +++ b/src/components/Cart.vue
-@@ -2,21 +2,27 @@
-   <!-- <Teleport to="app">
-         <Modal></Modal>
-     </Teleport> -->
--  <div class="items-container">
-+  <!-- <div class="items-container"> -->
+@@ -5,7 +5,7 @@
+   <!-- <div class="items-container"> -->
      <h2>Prodotti nel carrello</h2>
-+
-     <ul v-for="item in data" :key="item.id">
--      <li>
-+      <li id="item-li">
+ 
+-    <ul v-for="item in data" :key="item.id">
++    <!-- <ul v-for="item in data" :key="item.id">
+       <li id="item-li">
          {{ item.nome }} € {{ item.prezzo_scontato.toFixed(2) }}
          <span v-if="item.sconto !== 0">{{ item.sconto }}%</span>
-         <button @click="cartStore.rimuoviItem(item.id)">Rimuovi</button>
-+        <button @click="cartStore.addOne(item.id)">+</button>
-+        <span>Quantità {{ item.quantity }}</span>
-+        <button @click="cartStore.minusOne(item.id)">-</button>
+@@ -14,9 +14,21 @@
+         <span>Quantità {{ item.quantity }}</span>
+         <button @click="cartStore.minusOne(item.id)">-</button>
        </li>
-     </ul>
--  </div>
-+  <!-- </div> -->
-+   <ProductCard/>
+-    </ul>
++    </ul> -->
+   <!-- </div> -->
+-   <ProductCard/>
++   <ProductCard v-for="item in data" :key="item.id">
++    <template #image >
++      <img :src="item.image_url" alt="">
++    </template>
++
++    <template #content>
++      <h2>{{ item.nome }}</h2>
++    </template>
++
++    <template #footer>
++      <p>€ {{ item.prezzo_scontato }}</p>
++    </template>
++   </ProductCard>
  </template>
  
  <script setup>
- import { useCartStore } from '@/stores/cartStore.js';
- import Modal from './Modal.vue'
-+import ProductCard from './ProductCard.vue';
- 
- const cartStore = useCartStore()
- const props = defineProps({
-@@ -32,4 +38,9 @@ const props = defineProps({
- // }
- </script>
- 
--<style></style>
-+<style scoped>
-+#item-li {
-+  display: flex;
-+  justify-content: space-between;
-+}
-+</style>
-diff --git a/src/stores/cartStore.ts b/src/stores/cartStore.ts
-index 05c6751..6c7f264 100644
---- a/src/stores/cartStore.ts
-+++ b/src/stores/cartStore.ts
-@@ -14,7 +14,8 @@ export interface CartItem extends Product {
- export const useCartStore = defineStore('cart', () => {
-   // const items = ref<CartItem[]>([]);
-   const items = ref<CartItem[]>(
--    (() => {     // ← Function definition starts
-+    (() => {
-+      // ← Function definition starts
-       try {
-         const retrieved = localStorage.getItem('cart')
-         return retrieved === null ? [] : JSON.parse(retrieved)
-@@ -24,28 +25,44 @@ export const useCartStore = defineStore('cart', () => {
-       }
-     })(), // ← Function is CALLED here
-   ) // ← ref receives the RETURN VALUE
-+
-   const totalItems = computed<number>(() => {
-     return items.value.reduce((acc, item) => acc + item.quantity, 0)
-   })
- 
-   // watch the ref items and saves to localStorage at any change
--  watch(items, (newItems) => {localStorage.setItem('cart', JSON.stringify(newItems))}, { deep: true})
-+  watch(
-+    items,
-+    (newItems) => {
-+      localStorage.setItem('cart', JSON.stringify(newItems))
-+    },
-+    { deep: true },
-+  )
- 
-   const totalPrice = computed<number>(() =>
--    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0)
-+    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
-   )
- 
-   const rimuoviItem = (itemId: number) => {
--    items.value = items.value.filter(i => i.id !== itemId)
-+    items.value = items.value.filter((i) => i.id !== itemId)
-   }
- 
--  const quantita = (itemId: number) => {
--    const item = items.value.find(i => i.id === itemId)
--    if (item){
--    const quant = item.quantity++
-+  const addOne = (itemId: number) => {
-+    const item = items.value.find((i) => i.id === itemId)
-+    if (item) {
-+      // const quant = item.quantity++
-+      item.quantity++
-+      console.log({ itemQuantity: item.quantity })
-+    }
-   }
--}
- 
-+  const minusOne = (itemId: number) => {
-+    const item = items.value.find((i) => i.id === itemId)
-+    if (item) {
-+      item.quantity--
-+    }
-+  }
-+ 
-   const clearCart = () => {
-     // localStorage.setItem('cart', JSON.stringify([]))
-     items.value = []
-@@ -69,6 +86,8 @@ export const useCartStore = defineStore('cart', () => {
-     totalPrice,
-     addToCart,
-     clearCart,
--    rimuoviItem
-+    rimuoviItem,
-+    addOne,
-+    minusOne,
-   }
- })
+diff --git a/src/views/CartView.vue b/src/views/CartView.vue
+index ce4cbcc..33a383a 100644
+--- a/src/views/CartView.vue
++++ b/src/views/CartView.vue
+@@ -13,8 +13,7 @@ console.log({totalItems: cartStore.totalItems})
+ <template>
+     <Cart
+     :data="cartStore.items"
+-    >
+-    </Cart>
++    />
+     <h2>Totale</h2>
+     <p>€ {{ cartStore.totalPrice.toFixed(2) }}</p>
+     <button type="button" @click="cartStore.clearCart">Clear cart</button>
