@@ -36,9 +36,11 @@ export const useCartStore = defineStore('cart', () => {
   )
 
   const rimuoviItem = (itemId: number) => {
-    const itemQuantity = items.value.find(i => i.id === itemId)
-    console.log({itemQuantity: itemQuantity?.quantity})
     items.value = items.value.filter(i => i.id !== itemId)
+  }
+
+  const quantita = (itemId: number) => {
+    
   }
 
   const clearCart = () => {
