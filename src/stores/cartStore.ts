@@ -14,7 +14,8 @@ export interface CartItem extends Product {
 export const useCartStore = defineStore('cart', () => {
   // const items = ref<CartItem[]>([]);
   const items = ref<CartItem[]>(
-    (() => {     // ← Function definition starts
+    (() => {
+      // ← Function definition starts
       try {
         const retrieved = localStorage.getItem('cart')
         return retrieved === null ? [] : JSON.parse(retrieved)
@@ -24,28 +25,44 @@ export const useCartStore = defineStore('cart', () => {
       }
     })(), // ← Function is CALLED here
   ) // ← ref receives the RETURN VALUE
+
   const totalItems = computed<number>(() => {
     return items.value.reduce((acc, item) => acc + item.quantity, 0)
   })
 
   // watch the ref items and saves to localStorage at any change
-  watch(items, (newItems) => {localStorage.setItem('cart', JSON.stringify(newItems))}, { deep: true})
+  watch(
+    items,
+    (newItems) => {
+      localStorage.setItem('cart', JSON.stringify(newItems))
+    },
+    { deep: true },
+  )
 
   const totalPrice = computed<number>(() =>
-    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0)
+    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
   )
 
   const rimuoviItem = (itemId: number) => {
-    items.value = items.value.filter(i => i.id !== itemId)
+    items.value = items.value.filter((i) => i.id !== itemId)
   }
 
-  const quantita = (itemId: number) => {
-    const item = items.value.find(i => i.id === itemId)
-    if (item){
-    const quant = item.quantity++
+  const addOne = (itemId: number) => {
+    const item = items.value.find((i) => i.id === itemId)
+    if (item) {
+      // const quant = item.quantity++
+      item.quantity++
+      console.log({ itemQuantity: item.quantity })
+    }
   }
-}
 
+  const minusOne = (itemId: number) => {
+    const item = items.value.find((i) => i.id === itemId)
+    if (item) {
+      item.quantity--
+    }
+  }
+ 
   const clearCart = () => {
     // localStorage.setItem('cart', JSON.stringify([]))
     items.value = []
@@ -69,6 +86,8 @@ export const useCartStore = defineStore('cart', () => {
     totalPrice,
     addToCart,
     clearCart,
-    rimuoviItem
+    rimuoviItem,
+    addOne,
+    minusOne,
   }
 })

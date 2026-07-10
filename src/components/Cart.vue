@@ -2,21 +2,27 @@
   <!-- <Teleport to="app">
         <Modal></Modal>
     </Teleport> -->
-  <div class="items-container">
+  <!-- <div class="items-container"> -->
     <h2>Prodotti nel carrello</h2>
+
     <ul v-for="item in data" :key="item.id">
-      <li>
+      <li id="item-li">
         {{ item.nome }} € {{ item.prezzo_scontato.toFixed(2) }}
         <span v-if="item.sconto !== 0">{{ item.sconto }}%</span>
         <button @click="cartStore.rimuoviItem(item.id)">Rimuovi</button>
+        <button @click="cartStore.addOne(item.id)">+</button>
+        <span>Quantità {{ item.quantity }}</span>
+        <button @click="cartStore.minusOne(item.id)">-</button>
       </li>
     </ul>
-  </div>
+  <!-- </div> -->
+   <ProductCard/>
 </template>
 
 <script setup>
 import { useCartStore } from '@/stores/cartStore.js';
 import Modal from './Modal.vue'
+import ProductCard from './ProductCard.vue';
 
 const cartStore = useCartStore()
 const props = defineProps({
@@ -32,4 +38,9 @@ const props = defineProps({
 // }
 </script>
 
-<style></style>
+<style scoped>
+#item-li {
+  display: flex;
+  justify-content: space-between;
+}
+</style>
