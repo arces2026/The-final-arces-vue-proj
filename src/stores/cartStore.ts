@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue'
 export interface Product {
   id: number
   nome: string
-  prezzo: number
+  prezzo_scontato: number
 }
 
 export interface CartItem extends Product {
@@ -32,7 +32,7 @@ export const useCartStore = defineStore('cart', () => {
   watch(items, (newItems) => {localStorage.setItem('cart', JSON.stringify(newItems))}, { deep: true})
 
   const totalPrice = computed<number>(() =>
-    items.value.reduce((acc, item) => acc + item.prezzo * item.quantity, 0),
+    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
   )
 
   const clearCart = () => {
