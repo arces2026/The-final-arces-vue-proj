@@ -7,6 +7,7 @@ const cartStore = useCartStore();
 // const prodotti = await getProducts('https://deploy-django-backend.onrender.com/api/v1/scarpe')
 console.log({items: cartStore.items})
 console.log({totalItems: cartStore.totalItems})
+
 </script> 
 
 <template>
@@ -15,6 +16,6 @@ console.log({totalItems: cartStore.totalItems})
     >
     </Cart>
     <h2>Totale</h2>
-    <p>{{ cartStore.totalPrice }}</p>
+    <p>€ {{ cartStore.totalPrice.toFixed(2) }}</p>
     <button type="button" @click="cartStore.clearCart">Clear cart</button>
 </template>

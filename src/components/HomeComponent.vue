@@ -47,7 +47,7 @@ onMounted(async () => {
    } finally {
       loading.value = false
    }
-   // console.log(products.value);
+   console.log({products: products.value});
 })
 
 </script>

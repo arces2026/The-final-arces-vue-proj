@@ -32,8 +32,14 @@ export const useCartStore = defineStore('cart', () => {
   watch(items, (newItems) => {localStorage.setItem('cart', JSON.stringify(newItems))}, { deep: true})
 
   const totalPrice = computed<number>(() =>
-    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
+    items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0)
   )
+
+  const rimuoviItem = (itemId: number) => {
+    const itemQuantity = items.value.find(i => i.id === itemId)
+    console.log({itemQuantity: itemQuantity?.quantity})
+    items.value = items.value.filter(i => i.id !== itemId)
+  }
 
   const clearCart = () => {
     // localStorage.setItem('cart', JSON.stringify([]))
@@ -47,7 +53,7 @@ export const useCartStore = defineStore('cart', () => {
     } else {
       items.value.push({ ...product, quantity: 1 })
     }
-    console.log({ items: items.value })
+    console.log({ items: items.value[0].quantity })
 
     // localStorage.setItem('cart', JSON.stringify(items.value))
   }
@@ -58,5 +64,6 @@ export const useCartStore = defineStore('cart', () => {
     totalPrice,
     addToCart,
     clearCart,
+    rimuoviItem
   }
 })
