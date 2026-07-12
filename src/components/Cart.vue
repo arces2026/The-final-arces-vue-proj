@@ -1,19 +1,18 @@
 <template>
   <div class="cart-container">
     <h2 class="cart-title">Prodotti nel carrello</h2>
-    
+
     <div v-if="data.length === 0" class="empty-cart">
       <p>Il carrello è vuoto</p>
     </div>
-    
+
     <div v-else class="cart-items">
-      <ProductCard 
-        v-for="item in data" 
-        :key="item.id"
-        class="product-card"
-      >
+      <ProductCard v-for="item in data" :key="item.id" class="product-card">
         <template #image>
-          <img :src="item.immagine_url" :alt="item.nome" class="product-image">
+          <div class="badge-wrapper">
+            <span class="badge">Sconto {{ item.sconto }} %</span>
+            <img :src="item.immagine_url" :alt="item.nome" class="product-image" />
+          </div>
         </template>
 
         <template #content>
@@ -25,34 +24,24 @@
           <div class="product-footer">
             <div class="price-section">
               <p v-if="item.sconto > 0" class="original-price">€ {{ item.prezzo.toFixed(2) }}</p>
-              <p class="current-price" :class="{ 'discounted': item.sconto > 0 }">
+              <p class="current-price" :class="{ discounted: item.sconto > 0 }">
                 € {{ item.prezzo_scontato.toFixed(2) }}
               </p>
             </div>
-            
+
             <div class="quantity-controls">
-              <button 
-                @click="cartStore.minusOne(item.id)" 
+              <button
+                @click="cartStore.minusOne(item.id)"
                 class="quantity-btn"
                 :disabled="item.quantity <= 1"
               >
                 -
               </button>
               <span class="quantity-display">{{ item.quantity }}</span>
-              <button 
-                @click="cartStore.addOne(item.id)" 
-                class="quantity-btn"
-              >
-                +
-              </button>
+              <button @click="cartStore.addOne(item.id)" class="quantity-btn">+</button>
             </div>
-            
-            <button 
-              @click="cartStore.rimuoviItem(item.id)" 
-              class="remove-btn"
-            >
-              Rimuovi
-            </button>
+
+            <button @click="cartStore.rimuoviItem(item.id)" class="remove-btn">Rimuovi</button>
           </div>
         </template>
       </ProductCard>
@@ -61,24 +50,24 @@
 </template>
 
 <script setup>
-import { useCartStore } from '@/stores/cartStore.js';
-import ProductCard from './ProductCard.vue';
+import { useCartStore } from '@/stores/cartStore.js'
+import ProductCard from './ProductCard.vue'
 
-const cartStore = useCartStore();
+const cartStore = useCartStore()
 
 const props = defineProps({
   data: {
     type: Array,
     required: true,
-    default: () => []
-  }
-});
+    default: () => [],
+  },
+})
 </script>
 
 <style scoped>
 .cart-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 400px;
+  /* margin: 0 ; */
   padding: 20px;
 }
 
@@ -227,27 +216,27 @@ const props = defineProps({
   .cart-container {
     padding: 10px;
   }
-  
+
   .product-footer {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
-  
+
   .price-section {
     justify-content: center;
   }
-  
+
   .quantity-controls {
     justify-content: center;
     width: 100%;
   }
-  
+
   .remove-btn {
     width: 100%;
     text-align: center;
   }
-  
+
   .product-image {
     height: 150px;
   }

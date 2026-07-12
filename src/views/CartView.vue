@@ -23,6 +23,10 @@ console.log({ totalItems: cartStore.totalItems });
       </div>
       
       <div class="summary-content">
+        <div class="summary-row" v-for="item in cartStore.items" :key="item.id">
+            <span class="summary-nome">{{ item.nome }}</span>
+            <span class="summary-prezzo-scontato">€ {{ item.prezzo_scontato }}</span>
+        </div>
         <div class="summary-row">
           <span class="summary-label">Subtotale</span>
           <span class="summary-value">€ {{ cartStore.totalPrice.toFixed(2) }}</span>
@@ -66,6 +70,8 @@ console.log({ totalItems: cartStore.totalItems });
 
 <style scoped>
 .cart-page {
+    display: flex;
+    justify-content: space-evenly;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -80,7 +86,11 @@ console.log({ totalItems: cartStore.totalItems });
   margin-top: 30px;
   padding: 24px;
   position: sticky;
-  bottom: 20px;
+  /* position: absolute; */
+  top: 120px;
+  right: 20px;
+  width: 40%;
+  height: fit-content;
 }
 
 .summary-header {
