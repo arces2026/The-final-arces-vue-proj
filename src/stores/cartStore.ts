@@ -5,6 +5,8 @@ export interface Product {
   id: number
   nome: string
   prezzo_scontato: number
+  prezzo: number
+  sconto: number
 }
 
 export interface CartItem extends Product {
@@ -39,7 +41,15 @@ export const useCartStore = defineStore('cart', () => {
     { deep: true },
   )
 
-  const totalPrice = computed<number>(() =>
+  const subTotale = computed<number>(() =>
+    items.value.reduce((acc, item) => acc + item.prezzo * item.quantity, 0),
+  )
+
+  const risparmio = computed<number>(() =>
+    items.value.reduce((acc, item) => acc + (item.prezzo * item.sconto * item.quantity) / 100, 0),
+  )
+
+  const totaleScontato = computed<number>(() =>
     items.value.reduce((acc, item) => acc + item.prezzo_scontato * item.quantity, 0),
   )
 
@@ -62,7 +72,7 @@ export const useCartStore = defineStore('cart', () => {
       item.quantity--
     }
   }
- 
+
   const clearCart = () => {
     // localStorage.setItem('cart', JSON.stringify([]))
     items.value = []
@@ -83,7 +93,9 @@ export const useCartStore = defineStore('cart', () => {
   return {
     items,
     totalItems,
-    totalPrice,
+    subTotale,
+    totaleScontato,
+    risparmio,
     addToCart,
     clearCart,
     rimuoviItem,

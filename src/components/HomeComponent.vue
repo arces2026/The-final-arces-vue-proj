@@ -4,7 +4,7 @@
       <ProductCard v-for="product in products">
          <template #image>
             <div class="badge-wrapper">
-               <span class="badge">Sconto {{ product.sconto }}</span>
+               <span class="badge" v-if="product.sconto > 0">Sconto {{ product.sconto }}</span>
                 <img :src="product.immagine_url" :alt="product.nome" /></div>
          </template>
 

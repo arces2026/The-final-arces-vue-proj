@@ -11,6 +11,8 @@ const cartStore = useCartStore();
 // Debug logs
 console.log({ items: cartStore.items });
 console.log({ totalItems: cartStore.totalItems });
+
+
 </script>
 
 <template>
@@ -24,24 +26,34 @@ console.log({ totalItems: cartStore.totalItems });
       
       <div class="summary-content">
         <div class="summary-row" v-for="item in cartStore.items" :key="item.id">
-            <span class="summary-nome">{{ item.nome }}</span>
-            <span class="summary-prezzo-scontato">€ {{ item.prezzo_scontato }}</span>
+            <span class="summary-nome">{{ item.nome }} ({{ item.quantity }} unità)</span>
+            <span class="summary-prezzo">€ {{ item.prezzo }}</span>
         </div>
+
+        
         <div class="summary-row">
           <span class="summary-label">Subtotale</span>
-          <span class="summary-value">€ {{ cartStore.totalPrice.toFixed(2) }}</span>
+          
+          <span class="summary-value">€ {{ cartStore.subTotale.toFixed(2) }}</span>
         </div>
-        
+
         <div class="summary-row" v-if="cartStore.totalItems > 0">
           <span class="summary-label">Articoli</span>
           <span class="summary-value">{{ cartStore.totalItems }}</span>
         </div>
+
+        <div class="summary-row">
+          <span class="summary-label">Risparmio</span>
+          <span class="summary-value">€ {{ cartStore.risparmio.toFixed(2) }}</span>
+        </div>
+        
+        
         
         <div class="summary-divider"></div>
         
         <div class="summary-row total-row">
           <span class="summary-label total-label">Totale</span>
-          <span class="summary-value total-value">€ {{ cartStore.totalPrice.toFixed(2) }}</span>
+          <span class="summary-value total-value">€ {{ cartStore.totaleScontato.toFixed(2) }}</span>
         </div>
       </div>
       

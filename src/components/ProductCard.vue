@@ -28,7 +28,7 @@ passato dal padre*/
   background-color: rgb(57, 113, 8);
   border-radius: 10px;
   font-size: 0.8em;
-  padding: 4px;
+  padding: 6px;
 }
 
 .product-card {
